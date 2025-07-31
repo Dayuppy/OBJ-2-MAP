@@ -14,6 +14,7 @@
 
 // Decompiled source. Needs refactoring
 
+using System;
 using System.Collections.Generic;
 
 namespace OBJ2MAP
@@ -25,8 +26,8 @@ namespace OBJ2MAP
     public List<XVector> Verts;
     public List<XUV> UVs;
 
-    public XVector Normal;
-    public string TexName;
+    public XVector Normal = null!;
+    public string TexName = null!;
 
     public XFace()
     {
@@ -34,7 +35,7 @@ namespace OBJ2MAP
             this.UVs = new List<XUV>();
       this.VertIdx = new List<int>();
       this.UVIdx = new List<int>();
-      this.Normal = (XVector) null;
+      this.Normal = null!;
     }
 
     public XVector ComputeNormal(ref List<XVector> _Vertices)

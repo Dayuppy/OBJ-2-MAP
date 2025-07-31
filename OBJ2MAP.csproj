@@ -14,6 +14,7 @@
     <Copyright>Copyright © 2015 Warren Marshall, Aleksander Marhall</Copyright>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,9 +23,13 @@
 
   <ItemGroup>
     <Compile Remove="Legacy\**" />
+    <Compile Remove="WPF_Implementation\**" />
     <EmbeddedResource Remove="Legacy\**" />
+    <EmbeddedResource Remove="WPF_Implementation\**" />
     <None Remove="Legacy\**" />
+    <None Remove="WPF_Implementation\**" />
     <Page Remove="Legacy\**" />
+    <Page Remove="WPF_Implementation\**" />
   </ItemGroup>
 
 </Project>

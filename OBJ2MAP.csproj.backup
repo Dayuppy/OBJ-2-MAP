@@ -1,5 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
@@ -28,9 +30,6 @@
     <Compile Remove="Program.cs" />
     <Compile Remove="MainWindow.xaml.cs" />
     <Compile Remove="App.xaml.cs" />
-    <Compile Remove="MainForm.cs" />
-    <Compile Remove="MAPCreation_old.cs" />
-    <Compile Remove="SceneSettings.cs" />
     <EmbeddedResource Remove="Legacy\**" />
     <EmbeddedResource Remove="WPF_Implementation\**" />
     <None Remove="Legacy\**" />

@@ -1,0 +1,20 @@
+# Build artifacts
+bin/
+obj/
+*.exe
+*.dll
+*.pdb
+*.cache
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+
+# Test files
+test_*.obj
+test_*.map
+
+# Temporary files
+*.tmp
+*.temp

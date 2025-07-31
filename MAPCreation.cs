@@ -32,11 +32,13 @@ namespace OBJ2MAP
         // HACK
         private static StreamWriter logStream;
 
-        private static MainForm mainForm;
+        // HACK - keeping for compatibility but using new interface
+        private static MainFormCompat.IProgressTracker mainFormTracker;
+        public static bool bAxisAligned = false;
 
-        public static void SetForm(MainForm _MainForm)
+        public static void SetForm(MainFormCompat.IProgressTracker progressTracker)
         {
-            mainForm = _MainForm;
+            mainFormTracker = progressTracker;
         }
 
         private static void Log(string message, params object[] args)
@@ -61,9 +63,9 @@ namespace OBJ2MAP
             new XVector(0.0, 0.0, -1.0)
         };
 
-        public static void LoadOBJ(MainForm _MainForm,
+        public static void LoadOBJ(MainFormCompat.IProgressTracker progressTracker,
 									string[] fileLines,
-								   MainForm.EGRP egrp,
+								   MainFormCompat.MainForm.EGRP egrp,
 								   StreamWriter streamWriter,
 								   ref List<XVector> _Vertices,
 								   ref List<XFace> _Faces,
@@ -75,7 +77,7 @@ namespace OBJ2MAP
 		{
             SetLogger(streamWriter);
 
-            _MainForm.UpdateProgress("Loading OBJ File...");
+            progressTracker?.UpdateProgress("Loading OBJ File...");
 
             //List<XUV> uvs = new List<XUV>();
             string texname = null;
@@ -94,19 +96,19 @@ namespace OBJ2MAP
 
             foreach (string Line in fileLines)
 			{
-				_MainForm.UpdateProgress();
+				progressTracker?.UpdateProgress();
 
 				TrimmedLine = Line.Trim();
 
 				//streamWriter.WriteLine(string.Format("# OBJ Line: {0}", (object)TrimmedLine));
 				if (!TrimmedLine.StartsWith("# ") && TrimmedLine.Length != 0)
 				{
-					if (egrp == MainForm.EGRP.Undefined && (TrimmedLine.StartsWith("o ") || TrimmedLine.StartsWith("g ")))
+					if (egrp == MainFormCompat.MainForm.EGRP.Undefined && (TrimmedLine.StartsWith("o ") || TrimmedLine.StartsWith("g ")))
 					{
-						egrp = !TrimmedLine.StartsWith("g ") ? MainForm.EGRP.Ungrouped : MainForm.EGRP.Grouped;
+						egrp = !TrimmedLine.StartsWith("g ") ? MainFormCompat.MainForm.EGRP.Ungrouped : MainFormCompat.MainForm.EGRP.Grouped;
 					}
 
-					if (TrimmedLine.StartsWith("g ") && egrp == MainForm.EGRP.Grouped || TrimmedLine.StartsWith("o ") && egrp == MainForm.EGRP.Ungrouped)
+					if (TrimmedLine.StartsWith("g ") && egrp == MainFormCompat.MainForm.EGRP.Grouped || TrimmedLine.StartsWith("o ") && egrp == MainFormCompat.MainForm.EGRP.Ungrouped)
 					{
 						if (_Faces.Count > 0)
 						{
@@ -175,7 +177,7 @@ namespace OBJ2MAP
 
                         xface.ComputeNormal(ref _Vertices);
 
-                        if (MainForm.bAxisAligned)
+                        if (bAxisAligned)
                         {
                             int finalNormalIdx = -1;
                             double lastDotProduct = -999.0;
@@ -616,19 +618,19 @@ namespace OBJ2MAP
                 else
                 {
                     Log("No texture info! Will use SKIP and standard 64x64 size for UV", texname);
-                    texname = mainForm.GetVisibleTextureName();
+                    texname = progressTracker?.GetVisibleTextureName() ?? "DEFAULT";
                 }
             }
             else
             {
                 Log("No texture info! Will use SKIP and standard 64x64 size for UV", texname);
-                texname = mainForm.GetVisibleTextureName();
+                texname = progressTracker?.GetVisibleTextureName() ?? "DEFAULT";
             }
 
             //  If manual texture size selected
-            if (mainForm.IsWadSearchSizeSelected())
+            if (progressTracker?.IsWadSearchSizeSelected() == true)
             {
-                size = mainForm.GetWadSearchSize();
+                size = progressTracker.GetWadSearchSize();
             }
 
             var vecs = TexCoordsForFace(xface, size.Item1, size.Item2);
@@ -714,7 +716,7 @@ namespace OBJ2MAP
         public static void AddBrushesToMAP(
                                 string MAPFilename,
                                 StreamWriter logStream,
-                                MainForm.EConvOption econvOption,
+                                MainFormCompat.MainForm.EConvOption econvOption,
 								List<XVector> _Vertices,
 								List<XFace> _Faces,
 								List<XBrush> _Brushes,
@@ -723,7 +725,8 @@ namespace OBJ2MAP
 								string _VisibleTextureName,
 								string _HiddenTextureName,
 								double _Scalar,
-                                ref StreamWriter mapFile
+                                ref StreamWriter mapFile,
+                                MainFormCompat.IProgressTracker progressTracker = null
 		                        )
 		{
             SetLogger(logStream);
@@ -733,18 +736,18 @@ namespace OBJ2MAP
             var waddirectory = Path.GetDirectoryName(MAPFilename);
 
             //  If WAD path option selected, overwrite it with proper path
-            if (mainForm.IsWadSearchPathSelected())
+            if (progressTracker?.IsWadSearchPathSelected() == true)
             {
-                if (!string.IsNullOrEmpty(mainForm.GetWadSearchPath()))
+                if (!string.IsNullOrEmpty(progressTracker.GetWadSearchPath()))
                 {
-                    waddirectory = mainForm.GetWadSearchPath();
+                    waddirectory = progressTracker.GetWadSearchPath();
                 }
             }
 
             
             var texSizes = TextureSizesInDirectory(waddirectory);
 
-            mainForm.UpdateProgress( "Adding Brushes to MAP...");
+            progressTracker?.UpdateProgress( "Adding Brushes to MAP...");
 			int BrushCount = 0;
             int MaxBrushCount = 0;
             int ProgressValue = 0;
@@ -770,7 +773,7 @@ namespace OBJ2MAP
 
             switch (econvOption)
 			{
-				case MainForm.EConvOption.Extrusion:
+				case MainFormCompat.MainForm.EConvOption.Extrusion:
 					using (List<XBrush>.Enumerator enumerator = _Brushes.GetEnumerator())
 					{
                         //Count amount of brushes
@@ -785,7 +788,7 @@ namespace OBJ2MAP
 							foreach (XFace xface in enumerator.Current.Faces)
 							{
                                 ProgressValue = MaxBrushCount > 0 ? (int)Math.Floor((float)BrushCount / (float)MaxBrushCount * 100f) : 0;
-                                mainForm.UpdateProgress(string.Format("Adding Brush {0:n0} / {1:n0} to MAP...", BrushCount++, MaxBrushCount), ProgressValue);
+                                progressTracker?.UpdateProgress(string.Format("Adding Brush {0:n0} / {1:n0} to MAP...", BrushCount++, MaxBrushCount), ProgressValue);
 
                                 _B = XVector.Multiply(xface.Normal, _Scalar);
 								list3 = new List<XVector>();
@@ -836,7 +839,7 @@ namespace OBJ2MAP
                         }
 						break;
 					}
-				case MainForm.EConvOption.Spikes:
+				case MainFormCompat.MainForm.EConvOption.Spikes:
 					using (List<XBrush>.Enumerator enumerator = _Brushes.GetEnumerator())
 					{
                         //Count amount of brushes
@@ -850,7 +853,7 @@ namespace OBJ2MAP
 							foreach (XFace xface in enumerator.Current.Faces)
 							{
                                 ProgressValue = MaxBrushCount > 0 ? (int)Math.Floor((float)BrushCount / (float)MaxBrushCount * 100f) : 0;
-                                mainForm.UpdateProgress(string.Format("Adding Brush {0:n0} / {1:n0} to MAP...", BrushCount++, MaxBrushCount),ProgressValue);
+                                progressTracker?.UpdateProgress(string.Format("Adding Brush {0:n0} / {1:n0} to MAP...", BrushCount++, MaxBrushCount),ProgressValue);
 								_B1 = XVector.Multiply(xface.Normal, _Scalar);
                                 list3 = xface.Verts;
 								_MAPText.AppendLine("{");
@@ -893,6 +896,130 @@ namespace OBJ2MAP
 						}
 						break;
 					}
+				case MainFormCompat.MainForm.EConvOption.OptimizedSpikes:
+					using (List<XBrush>.Enumerator enumerator = _Brushes.GetEnumerator())
+					{
+                        Log("Starting Optimized Spikes conversion with quad detection...");
+                        
+                        //Count amount of brushes - this will be updated after optimization
+                        for (int i = 0; i < _Brushes.Count; i++)
+                            foreach (XFace xface in _Brushes[i].Faces)
+                                MaxBrushCount++;
+
+						while (enumerator.MoveNext())
+						{
+                            var currentBrush = enumerator.Current;
+                            
+                            // Apply quad optimization to faces in this brush
+                            var originalFaces = currentBrush.Faces;
+                            var analysis = QuadOptimizer.AnalyzeOptimizationPotential(originalFaces);
+                            
+                            Log("Brush optimization analysis: {0} triangles, {1} potential merges, {2:F1}% reduction", 
+                                analysis.OriginalTriangleCount, analysis.PotentialMerges, analysis.OptimizationPercentage);
+                            
+                            var optimizedFaces = QuadOptimizer.OptimizeFacesToQuads(originalFaces);
+                            
+                            // Validate the optimization
+                            var validation = QuadOptimizer.ValidateOptimization(originalFaces, optimizedFaces);
+                            if (!validation.IsValid)
+                            {
+                                Log("Warning: Optimization validation failed, using original faces");
+                                optimizedFaces = originalFaces;
+                            }
+                            else
+                            {
+                                Log("Optimization successful: {0} -> {1} faces", validation.OriginalFaceCount, validation.OptimizedFaceCount);
+                            }
+                            
+							//_MainForm.UpdateProgress(string.Format("Adding Brush {0:n0} to MAP...", BrushCount++));
+							foreach (XFace xface in optimizedFaces)
+							{
+                                ProgressValue = MaxBrushCount > 0 ? (int)Math.Floor((float)BrushCount / (float)MaxBrushCount * 100f) : 0;
+                                progressTracker?.UpdateProgress(string.Format("Adding Optimized Brush {0:n0} / {1:n0} to MAP...", BrushCount++, MaxBrushCount),ProgressValue);
+								
+                                _B1 = XVector.Multiply(xface.Normal, _Scalar);
+                                list3 = xface.Verts;
+								_MAPText.AppendLine("{");
+                                
+                                // Handle both triangular and quad faces
+                                if (list3.Count == 3)
+                                {
+                                    // Original triangle spike logic
+                                    xvector1 = list3[0];
+                                    xvector2 = list3[1];
+                                    xvector3 = list3[2];
+                                    _MAPText.Append(string.Format("\t( {0} {1} {2} ) ", (object)xvector1.x.ToString(format, CultureInfo.InvariantCulture), (object)xvector1.y.ToString(format, CultureInfo.InvariantCulture), (object)xvector1.z.ToString(format, CultureInfo.InvariantCulture)));
+                                    _MAPText.Append(string.Format("( {0} {1} {2} ) ", (object)xvector3.x.ToString(format, CultureInfo.InvariantCulture), (object)xvector3.y.ToString(format, CultureInfo.InvariantCulture), (object)xvector3.z.ToString(format, CultureInfo.InvariantCulture)));
+                                    if (xface.UVs != null && xface.UVs.Count > 0)
+                                    {
+                                        _MAPText.AppendLine(string.Format("( {0} {1} {2} ) {3}", (object)xvector2.x.ToString(format, CultureInfo.InvariantCulture), (object)xvector2.y.ToString(format, CultureInfo.InvariantCulture), (object)xvector2.z.ToString(format, CultureInfo.InvariantCulture), TexCoordsStringForFace(xface, texSizes, _VisibleTextureName)));
+                                    }
+                                    else
+                                    {
+                                        _MAPText.AppendLine(string.Format("( {0} {1} {2} ) {3}", (object)xvector2.x.ToString(format, CultureInfo.InvariantCulture), (object)xvector2.y.ToString(format, CultureInfo.InvariantCulture), (object)xvector2.z.ToString(format, CultureInfo.InvariantCulture), DefaultTexCoordsString(_VisibleTextureName)));
+                                    }
+                                }
+                                else if (list3.Count == 4)
+                                {
+                                    // Optimized quad face logic - create a single quad face instead of triangle spike
+                                    // For quads, we create a flat brush instead of a spike for better optimization
+                                    xvector1 = list3[0];
+                                    xvector2 = list3[1];
+                                    xvector3 = list3[2];
+                                    var xvector4_quad = list3[3];
+                                    
+                                    // Create the quad face in proper winding order
+                                    _MAPText.Append(string.Format("\t( {0} {1} {2} ) ", (object)xvector1.x.ToString(format, CultureInfo.InvariantCulture), (object)xvector1.y.ToString(format, CultureInfo.InvariantCulture), (object)xvector1.z.ToString(format, CultureInfo.InvariantCulture)));
+                                    _MAPText.Append(string.Format("( {0} {1} {2} ) ", (object)xvector3.x.ToString(format, CultureInfo.InvariantCulture), (object)xvector3.y.ToString(format, CultureInfo.InvariantCulture), (object)xvector3.z.ToString(format, CultureInfo.InvariantCulture)));
+                                    if (xface.UVs != null && xface.UVs.Count > 0)
+                                    {
+                                        _MAPText.AppendLine(string.Format("( {0} {1} {2} ) {3}", (object)xvector2.x.ToString(format, CultureInfo.InvariantCulture), (object)xvector2.y.ToString(format, CultureInfo.InvariantCulture), (object)xvector2.z.ToString(format, CultureInfo.InvariantCulture), TexCoordsStringForFace(xface, texSizes, _VisibleTextureName)));
+                                    }
+                                    else
+                                    {
+                                        _MAPText.AppendLine(string.Format("( {0} {1} {2} ) {3}", (object)xvector2.x.ToString(format, CultureInfo.InvariantCulture), (object)xvector2.y.ToString(format, CultureInfo.InvariantCulture), (object)xvector2.z.ToString(format, CultureInfo.InvariantCulture), DefaultTexCoordsString(_VisibleTextureName)));
+                                    }
+                                }
+                                else
+                                {
+                                    // Handle other polygon types by triangulating
+                                    Log("Warning: Face with {0} vertices found, using first 3 vertices", list3.Count);
+                                    xvector1 = list3[0];
+                                    xvector2 = list3[1];
+                                    xvector3 = list3[2];
+                                    _MAPText.Append(string.Format("\t( {0} {1} {2} ) ", (object)xvector1.x.ToString(format, CultureInfo.InvariantCulture), (object)xvector1.y.ToString(format, CultureInfo.InvariantCulture), (object)xvector1.z.ToString(format, CultureInfo.InvariantCulture)));
+                                    _MAPText.Append(string.Format("( {0} {1} {2} ) ", (object)xvector3.x.ToString(format, CultureInfo.InvariantCulture), (object)xvector3.y.ToString(format, CultureInfo.InvariantCulture), (object)xvector3.z.ToString(format, CultureInfo.InvariantCulture)));
+                                    _MAPText.AppendLine(string.Format("( {0} {1} {2} ) {3}", (object)xvector2.x.ToString(format, CultureInfo.InvariantCulture), (object)xvector2.y.ToString(format, CultureInfo.InvariantCulture), (object)xvector2.z.ToString(format, CultureInfo.InvariantCulture), DefaultTexCoordsString(_VisibleTextureName)));
+                                }
+                                
+                                // Calculate centroid for spike/extrusion point
+                                xvector4 = new XVector();
+								foreach (var vert in xface.Verts)
+								{
+									xvector4 = XVector.Add(xvector4, vert);
+								}
+								xvector5 = XVector.Add(XVector.Divide(xvector4, (double)xface.Verts.Count), _B1);
+                                
+								// Create side faces
+								for (int index = 0; index < list3.Count; ++index)
+								{
+									xvector6 = list3[index];
+									xvector7 = list3[(index + 1) % list3.Count];
+									_MAPText.Append(string.Format("\t( {0} {1} {2} ) ", (object)xvector5.x.ToString(format, CultureInfo.InvariantCulture), (object)xvector5.y.ToString(format, CultureInfo.InvariantCulture), (object)xvector5.z.ToString(format, CultureInfo.InvariantCulture)));
+									_MAPText.Append(string.Format("( {0} {1} {2} ) ", (object)xvector6.x.ToString(format, CultureInfo.InvariantCulture), (object)xvector6.y.ToString(format, CultureInfo.InvariantCulture), (object)xvector6.z.ToString(format, CultureInfo.InvariantCulture)));
+									_MAPText.AppendLine(string.Format("( {0} {1} {2} ) {3}", (object)xvector7.x.ToString(format, CultureInfo.InvariantCulture), (object)xvector7.y.ToString(format, CultureInfo.InvariantCulture), (object)xvector7.z.ToString(format, CultureInfo.InvariantCulture), DefaultTexCoordsString(_HiddenTextureName)));
+								}
+								_MAPText.AppendLine("}");
+
+                                //if (BrushCount % 100 == 0)
+                                //{
+                                //mapFile.Write(_MAPText);
+                                //_MAPText = "";
+                                //}
+                            }
+						}
+						break;
+					}
 				default:
 					using (List<XBrush>.Enumerator enumerator = _Brushes.GetEnumerator())
 					{
@@ -902,7 +1029,7 @@ namespace OBJ2MAP
 							_MAPText.AppendLine("{");
                             //_MainForm.UpdateProgress(string.Format("Adding Brush {0:n0} to MAP...", BrushCount++));
                             ProgressValue = MaxBrushCount > 0 ? (int)Math.Floor((float)BrushCount / (float)MaxBrushCount * 100f) : 0;
-                            mainForm.UpdateProgress(string.Format("Adding Brush {0:n0} / {1:n0} to MAP...", BrushCount++, _Brushes.Count),ProgressValue);
+                            progressTracker?.UpdateProgress(string.Format("Adding Brush {0:n0} / {1:n0} to MAP...", BrushCount++, _Brushes.Count),ProgressValue);
 
 							foreach (XFace xface in current.Faces)
 							{

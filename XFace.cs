@@ -12,46 +12,44 @@
 //	ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 //	OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-// Decompiled source. Needs refactoring
-
 using System.Collections.Generic;
 
 namespace OBJ2MAP
 {
-  public class XFace
-  {
-    public List<int> VertIdx;
-    public List<int> UVIdx;
-    public List<XVector> Verts;
-    public List<XUV> UVs;
-
-    public XVector Normal;
-    public string TexName;
-
-    public XFace()
+    public class XFace
     {
-            this.Verts = new List<XVector>();
-            this.UVs = new List<XUV>();
-      this.VertIdx = new List<int>();
-      this.UVIdx = new List<int>();
-      this.Normal = (XVector) null;
-    }
+        public List<int> VertIdx { get; set; }
+        public List<int> UVIdx { get; set; }
+        public List<XVector> Verts { get; set; }
+        public List<XUV> UVs { get; set; }
 
-    public XVector ComputeNormal(ref List<XVector> _Vertices)
-    {
-      this.Normal = new XVector();
-      XVector _A1 = _Vertices[this.VertIdx[0]];
-      XVector _B = _Vertices[this.VertIdx[1]];
-      XVector _A2 = _Vertices[this.VertIdx[2]];
-      this.Normal = XVector.Cross(XVector.Subtract(_A1, _B), XVector.Subtract(_A2, _B));
-      this.Normal.Normalize();
-      return this.Normal;
-    }
+        public XVector? Normal { get; set; }
+        public string? TexName { get; set; }
 
-    public void ComputeNormal()
-    {
-        this.Normal = XVector.Cross(XVector.Subtract(Verts[0], Verts[1]), XVector.Subtract(Verts[2], Verts[1]));
-        this.Normal.Normalize();
-    }
+        public XFace()
+        {
+            Verts = new List<XVector>();
+            UVs = new List<XUV>();
+            VertIdx = new List<int>();
+            UVIdx = new List<int>();
+            Normal = null;
+        }
+
+        public XVector ComputeNormal(ref List<XVector> vertices)
+        {
+            Normal = new XVector();
+            var vertex1 = vertices[VertIdx[0]];
+            var vertex2 = vertices[VertIdx[1]];
+            var vertex3 = vertices[VertIdx[2]];
+            Normal = XVector.Cross(XVector.Subtract(vertex1, vertex2), XVector.Subtract(vertex3, vertex2));
+            Normal.Normalize();
+            return Normal;
+        }
+
+        public void ComputeNormal()
+        {
+            Normal = XVector.Cross(XVector.Subtract(Verts[0], Verts[1]), XVector.Subtract(Verts[2], Verts[1]));
+            Normal.Normalize();
+        }
     }
 }

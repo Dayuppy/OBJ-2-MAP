@@ -28,21 +28,22 @@ namespace OBJ2MAP
     /// MAP creation - Valve 220 format
     /// </summary>
     class MAPCreation
-    {
+	{
         // HACK
-        private static StreamWriter? logStream;
+        private static StreamWriter logStream;
 
-        private static IProgressTracker? mainTracker;
+        private static MainForm mainForm;
 
-        public static void SetTracker(IProgressTracker tracker)
+        public static void SetForm(MainForm _MainForm)
         {
-            mainTracker = tracker;
+            mainForm = _MainForm;
         }
 
         private static void Log(string message, params object[] args)
         {
             Console.WriteLine(message, args);
-            logStream?.WriteLine(message, args);
+            if (logStream != null)
+                logStream.WriteLine(message, args);
         }
 
         private static void SetLogger(StreamWriter stream)
@@ -60,21 +61,21 @@ namespace OBJ2MAP
             new XVector(0.0, 0.0, -1.0)
         };
 
-        public static void LoadOBJ(IProgressTracker tracker,
-                                   string[] fileLines,
-                                   MainForm.EGRP egrp,
-                                   StreamWriter streamWriter,
-                                   ref List<XVector> _Vertices,
-                                   ref List<XFace> _Faces,
+        public static void LoadOBJ(MainForm _MainForm,
+									string[] fileLines,
+								   MainForm.EGRP egrp,
+								   StreamWriter streamWriter,
+								   ref List<XVector> _Vertices,
+								   ref List<XFace> _Faces,
                                    ref List<XUV> _UVs,
                                    ref List<XBrush> _Brushes,
-                                   float scale,
-                                   char[] separator1,
-                                   char[] separator2)
-        {
+								   float scale,
+								   char[] separator1,
+								   char[] separator2)
+		{
             SetLogger(streamWriter);
 
-            tracker.UpdateProgress("Loading OBJ File...");
+            _MainForm.UpdateProgress("Loading OBJ File...");
 
             //List<XUV> uvs = new List<XUV>();
             string texname = null;
@@ -93,7 +94,7 @@ namespace OBJ2MAP
 
             foreach (string Line in fileLines)
 			{
-				tracker.UpdateProgress();
+				_MainForm.UpdateProgress();
 
 				TrimmedLine = Line.Trim();
 
@@ -601,7 +602,7 @@ namespace OBJ2MAP
             return String.Format("{0} [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1", texName);
         }
 
-        public static string TexCoordsStringForFace(IProgressTracker tracker, XFace xface, Dictionary<string, Tuple<int, int>> texSizes, string fallbackTextureName)
+        public static string TexCoordsStringForFace(XFace xface, Dictionary<string, Tuple<int, int>> texSizes, string fallbackTextureName)
         {
             var texname = xface.TexName;
             var size = new Tuple<int, int>(64, 64);
@@ -615,19 +616,19 @@ namespace OBJ2MAP
                 else
                 {
                     Log("No texture info! Will use SKIP and standard 64x64 size for UV", texname);
-                    texname = tracker.GetVisibleTextureName();
+                    texname = mainForm.GetVisibleTextureName();
                 }
             }
             else
             {
                 Log("No texture info! Will use SKIP and standard 64x64 size for UV", texname);
-                texname = tracker.GetVisibleTextureName();
+                texname = mainForm.GetVisibleTextureName();
             }
 
             //  If manual texture size selected
-            if (tracker.IsWadSearchSizeSelected())
+            if (mainForm.IsWadSearchSizeSelected())
             {
-                size = tracker.GetWadSearchSize();
+                size = mainForm.GetWadSearchSize();
             }
 
             var vecs = TexCoordsForFace(xface, size.Item1, size.Item2);
@@ -711,7 +712,6 @@ namespace OBJ2MAP
         }
 
         public static void AddBrushesToMAP(
-                                IProgressTracker tracker,
                                 string MAPFilename,
                                 StreamWriter logStream,
                                 MainForm.EConvOption econvOption,
@@ -733,18 +733,18 @@ namespace OBJ2MAP
             var waddirectory = Path.GetDirectoryName(MAPFilename);
 
             //  If WAD path option selected, overwrite it with proper path
-            if (tracker.IsWadSearchPathSelected())
+            if (mainForm.IsWadSearchPathSelected())
             {
-                if (!string.IsNullOrEmpty(tracker.GetWadSearchPath()))
+                if (!string.IsNullOrEmpty(mainForm.GetWadSearchPath()))
                 {
-                    waddirectory = tracker.GetWadSearchPath();
+                    waddirectory = mainForm.GetWadSearchPath();
                 }
             }
 
             
             var texSizes = TextureSizesInDirectory(waddirectory);
 
-            tracker.UpdateProgress("Adding Brushes to MAP...");
+            mainForm.UpdateProgress( "Adding Brushes to MAP...");
 			int BrushCount = 0;
             int MaxBrushCount = 0;
             int ProgressValue = 0;
@@ -785,7 +785,7 @@ namespace OBJ2MAP
 							foreach (XFace xface in enumerator.Current.Faces)
 							{
                                 ProgressValue = MaxBrushCount > 0 ? (int)Math.Floor((float)BrushCount / (float)MaxBrushCount * 100f) : 0;
-                                tracker.UpdateProgress($"Adding Brush {BrushCount++:n0} / {MaxBrushCount:n0} to MAP...", ProgressValue);
+                                mainForm.UpdateProgress(string.Format("Adding Brush {0:n0} / {1:n0} to MAP...", BrushCount++, MaxBrushCount), ProgressValue);
 
                                 _B = XVector.Multiply(xface.Normal, _Scalar);
 								list3 = new List<XVector>();
@@ -804,7 +804,7 @@ namespace OBJ2MAP
 								_MAPText.Append(string.Format("( {0} {1} {2} ) ", (object)xvector3.x.ToString(format, CultureInfo.InvariantCulture), (object)xvector3.y.ToString(format, CultureInfo.InvariantCulture), (object)xvector3.z.ToString(format, CultureInfo.InvariantCulture)));
                                 if (xface.UVs != null && xface.UVs.Count > 0)
                                 {
-                                    _MAPText.AppendLine(string.Format("( {0} {1} {2} ) {3}", (object)xvector2.x.ToString(format, CultureInfo.InvariantCulture), (object)xvector2.y.ToString(format, CultureInfo.InvariantCulture), (object)xvector2.z.ToString(format, CultureInfo.InvariantCulture), TexCoordsStringForFace(tracker, xface, texSizes, _VisibleTextureName)));
+                                    _MAPText.AppendLine(string.Format("( {0} {1} {2} ) {3}", (object)xvector2.x.ToString(format, CultureInfo.InvariantCulture), (object)xvector2.y.ToString(format, CultureInfo.InvariantCulture), (object)xvector2.z.ToString(format, CultureInfo.InvariantCulture), TexCoordsStringForFace(xface, texSizes, _VisibleTextureName)));
                                 }
                                 else
                                 {
@@ -850,7 +850,7 @@ namespace OBJ2MAP
 							foreach (XFace xface in enumerator.Current.Faces)
 							{
                                 ProgressValue = MaxBrushCount > 0 ? (int)Math.Floor((float)BrushCount / (float)MaxBrushCount * 100f) : 0;
-                                tracker.UpdateProgress($"Adding Brush {BrushCount++:n0} / {MaxBrushCount:n0} to MAP...", ProgressValue);
+                                mainForm.UpdateProgress(string.Format("Adding Brush {0:n0} / {1:n0} to MAP...", BrushCount++, MaxBrushCount),ProgressValue);
 								_B1 = XVector.Multiply(xface.Normal, _Scalar);
                                 list3 = xface.Verts;
 								_MAPText.AppendLine("{");
@@ -861,7 +861,7 @@ namespace OBJ2MAP
 								_MAPText.Append(string.Format("( {0} {1} {2} ) ", (object)xvector3.x.ToString(format, CultureInfo.InvariantCulture), (object)xvector3.y.ToString(format, CultureInfo.InvariantCulture), (object)xvector3.z.ToString(format, CultureInfo.InvariantCulture)));
                                 if (xface.UVs != null && xface.UVs.Count > 0)
                                 {
-                                    _MAPText.AppendLine(string.Format("( {0} {1} {2} ) {3}", (object)xvector2.x.ToString(format, CultureInfo.InvariantCulture), (object)xvector2.y.ToString(format, CultureInfo.InvariantCulture), (object)xvector2.z.ToString(format, CultureInfo.InvariantCulture), TexCoordsStringForFace(tracker, xface, texSizes, _VisibleTextureName)));
+                                    _MAPText.AppendLine(string.Format("( {0} {1} {2} ) {3}", (object)xvector2.x.ToString(format, CultureInfo.InvariantCulture), (object)xvector2.y.ToString(format, CultureInfo.InvariantCulture), (object)xvector2.z.ToString(format, CultureInfo.InvariantCulture), TexCoordsStringForFace(xface, texSizes, _VisibleTextureName)));
                                 }
                                 else
                                 {
@@ -902,7 +902,7 @@ namespace OBJ2MAP
 							_MAPText.AppendLine("{");
                             //_MainForm.UpdateProgress(string.Format("Adding Brush {0:n0} to MAP...", BrushCount++));
                             ProgressValue = MaxBrushCount > 0 ? (int)Math.Floor((float)BrushCount / (float)MaxBrushCount * 100f) : 0;
-                            tracker.UpdateProgress($"Adding Brush {BrushCount++:n0} / {_Brushes.Count:n0} to MAP...", ProgressValue);
+                            mainForm.UpdateProgress(string.Format("Adding Brush {0:n0} / {1:n0} to MAP...", BrushCount++, _Brushes.Count),ProgressValue);
 
 							foreach (XFace xface in current.Faces)
 							{
@@ -913,7 +913,7 @@ namespace OBJ2MAP
 								_MAPText.Append(string.Format("( {0} {1} {2} ) ", (object)xvector2.x.ToString(format, CultureInfo.InvariantCulture), (object)xvector2.y.ToString(format, CultureInfo.InvariantCulture), (object)xvector2.z.ToString(format, CultureInfo.InvariantCulture)));
                                 if (xface.UVs != null && xface.UVs.Count > 0)
                                 {
-                                    _MAPText.AppendLine(string.Format("( {0} {1} {2} ) {3}", (object)xvector3.x.ToString(format, CultureInfo.InvariantCulture), (object)xvector3.y.ToString(format, CultureInfo.InvariantCulture), (object)xvector3.z.ToString(format, CultureInfo.InvariantCulture), TexCoordsStringForFace(tracker, xface, texSizes, _VisibleTextureName)));
+                                    _MAPText.AppendLine(string.Format("( {0} {1} {2} ) {3}", (object)xvector3.x.ToString(format, CultureInfo.InvariantCulture), (object)xvector3.y.ToString(format, CultureInfo.InvariantCulture), (object)xvector3.z.ToString(format, CultureInfo.InvariantCulture), TexCoordsStringForFace(xface, texSizes, _VisibleTextureName)));
                                 }
                                 else
                                 {

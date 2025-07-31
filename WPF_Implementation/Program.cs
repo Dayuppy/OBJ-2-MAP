@@ -12,17 +12,21 @@
 //	ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 //	OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-using System.Collections.Generic;
+// Decompiled source. Needs refactoring
+
+using System;
+using System.Windows.Forms;
 
 namespace OBJ2MAP
 {
-    public class XBrush
+  internal static class Program
+  {
+    [STAThread]
+    private static void Main()
     {
-        public List<XFace> Faces { get; set; } = new List<XFace>();
-
-        public XBrush()
-        {
-            Faces = new List<XFace>();
-        }
+        Application.EnableVisualStyles();
+        Application.SetCompatibleTextRenderingDefault(false);
+        Application.Run((Form) new MainForm());
     }
+  }
 }

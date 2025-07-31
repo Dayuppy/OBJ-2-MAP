@@ -12,99 +12,95 @@
 //	ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 //	OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
-// Decompiled source. Needs refactoring
-
 using System;
 
 namespace OBJ2MAP
 {
-  public class XVector
-  {
-    public double x;
-    public double y;
-    public double z;
-
-    public XVector()
+    public class XVector
     {
-      this.x = this.y = this.z = 0.0;
-    }
+        public double x;
+        public double y;
+        public double z;
 
-    public XVector(double _x, double _y, double _z)
-    {
-      this.x = _x;
-      this.y = _y;
-      this.z = _z;
-    }
+        public XVector()
+        {
+            x = y = z = 0.0;
+        }
 
-    public XVector(XVector _V)
-    {
-      this.x = _V.x;
-      this.y = _V.y;
-      this.z = _V.z;
-    }
+        public XVector(double x, double y, double z)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
 
-    public XVector Normalize()
-    {
-      double sizeSquared = this.GetSizeSquared();
-      if (sizeSquared == 0.0)
-        return this;
-      this.x /= sizeSquared;
-      this.y /= sizeSquared;
-      this.z /= sizeSquared;
-      return this;
-    }
+        public XVector(XVector other)
+        {
+            x = other.x;
+            y = other.y;
+            z = other.z;
+        }
 
-    public XVector Normalized()
-    {
-        XVector copy = new XVector(this);
-        copy.Normalize();
-        return copy;
-    }
+        public XVector Normalize()
+        {
+            double sizeSquared = GetSizeSquared();
+            if (sizeSquared == 0.0)
+                return this;
+            x /= sizeSquared;
+            y /= sizeSquared;
+            z /= sizeSquared;
+            return this;
+        }
+
+        public XVector Normalized()
+        {
+            var copy = new XVector(this);
+            copy.Normalize();
+            return copy;
+        }
 
         public double GetSizeSquared()
-    {
-      return Math.Sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
-    }
+        {
+            return Math.Sqrt(x * x + y * y + z * z);
+        }
 
-    public double GetLength()
-    {
-        return Math.Sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
-    }
+        public double GetLength()
+        {
+            return Math.Sqrt(x * x + y * y + z * z);
+        }
 
-        public static XVector Cross(XVector _A, XVector _B)
-    {
-      return new XVector()
-      {
-        x = _A.y * _B.z - _A.z * _B.y,
-        y = _A.z * _B.x - _A.x * _B.z,
-        z = _A.x * _B.y - _A.y * _B.x
-      };
-    }
+        public static XVector Cross(XVector a, XVector b)
+        {
+            return new XVector(
+                a.y * b.z - a.z * b.y,
+                a.z * b.x - a.x * b.z,
+                a.x * b.y - a.y * b.x
+            );
+        }
 
-    public static double Dot(XVector _A, XVector _B)
-    {
-      return _A.x * _B.x + _A.y * _B.y + _A.z * _B.z;
-    }
+        public static double Dot(XVector a, XVector b)
+        {
+            return a.x * b.x + a.y * b.y + a.z * b.z;
+        }
 
-    public static XVector Subtract(XVector _A, XVector _B)
-    {
-      return new XVector(_A.x - _B.x, _A.y - _B.y, _A.z - _B.z);
-    }
+        public static XVector Subtract(XVector a, XVector b)
+        {
+            return new XVector(a.x - b.x, a.y - b.y, a.z - b.z);
+        }
 
-    public static XVector Add(XVector _A, XVector _B)
-    {
-      return new XVector(_A.x + _B.x, _A.y + _B.y, _A.z + _B.z);
-    }
+        public static XVector Add(XVector a, XVector b)
+        {
+            return new XVector(a.x + b.x, a.y + b.y, a.z + b.z);
+        }
 
-    public static XVector Multiply(XVector _V, double _Scalar)
-    {
-      return new XVector(_V.x * _Scalar, _V.y * _Scalar, _V.z * _Scalar);
-    }
+        public static XVector Multiply(XVector vector, double scalar)
+        {
+            return new XVector(vector.x * scalar, vector.y * scalar, vector.z * scalar);
+        }
 
-    public static XVector Divide(XVector _V, double _Scalar)
-    {
-      return new XVector(_V.x / _Scalar, _V.y / _Scalar, _V.z / _Scalar);
+        public static XVector Divide(XVector vector, double scalar)
+        {
+            return new XVector(vector.x / scalar, vector.y / scalar, vector.z / scalar);
+        }
     }
-  }
 }

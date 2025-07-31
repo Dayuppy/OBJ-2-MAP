@@ -25,7 +25,9 @@ namespace OBJ2MAP
 {
     class SceneSettings
     {
-        public enum EFieldNames {
+        MainForm progForm;
+
+		public enum EFieldNames {
                 MapOutput,
                 BrushMethod,
                 CopyToClipboard,
@@ -42,6 +44,11 @@ namespace OBJ2MAP
                 wadTextureSizeX,
                 wadTextureSizeY
         };
+
+        public SceneSettings(MainForm form)
+        {
+            progForm = form;
+        }
 
         public static bool SettingsSave(
             string output,

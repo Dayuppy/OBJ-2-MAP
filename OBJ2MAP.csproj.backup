@@ -1,5 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
@@ -15,10 +17,11 @@
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <StartupObject>OBJ2MAP.BrushOptimizationDemo</StartupObject>
+    <StartupObject>OBJ2MAP.TestProgram</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,12 +30,6 @@
     <Compile Remove="Program.cs" />
     <Compile Remove="MainWindow.xaml.cs" />
     <Compile Remove="App.xaml.cs" />
-    <Compile Remove="MainForm.cs" />
-    <Compile Remove="MAPCreation_old.cs" />
-    <Compile Remove="SceneSettings.cs" />
-    <Compile Remove="MAPCreation.cs" />
-    <Compile Remove="TestProgram.cs" />
-    <Compile Remove="MainFormCompat.cs" />
     <EmbeddedResource Remove="Legacy\**" />
     <EmbeddedResource Remove="WPF_Implementation\**" />
     <None Remove="Legacy\**" />

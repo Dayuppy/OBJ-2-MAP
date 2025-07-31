@@ -61,27 +61,6 @@ cd /path/to/OBJ-2-MAP
 dotnet build
 dotnet run
 ```
-
-### For Full WPF Application
-1. **Requirements**:
-   - .NET 8.0 SDK with Windows Desktop workload
-   - Windows 10/11 development machine
-
-2. **Project File Updates**:
-   ```xml
-   <PropertyGroup>
-     <OutputType>WinExe</OutputType>
-     <TargetFramework>net8.0-windows</TargetFramework>
-     <UseWPF>true</UseWPF>
-   </PropertyGroup>
-   ```
-
-3. **Build and Run**:
-   ```bash
-   dotnet build
-   dotnet run
-   ```
-
 ## Complete WPF Structure
 
 ### XAML Files

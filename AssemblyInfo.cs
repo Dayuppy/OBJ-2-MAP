@@ -12,19 +12,17 @@
 //	ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 //	OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-// Decompiled source. Needs refactoring
+using System.Reflection;
+using System.Runtime.InteropServices;
 
-using System.Collections.Generic;
-
-namespace OBJ2MAP
-{
-  public class XBrush
-  {
-    public List<XFace> Faces;
-
-    public XBrush()
-    {
-      this.Faces = new List<XFace>();
-    }
-  }
-}
+[assembly: AssemblyDescription("")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyTrademark("")]
+[assembly: AssemblyTitle("OBJ2MAP")]
+[assembly: AssemblyProduct("OBJ2MAP")]
+[assembly: AssemblyCopyright("Copyright ©  2015-2018")]
+[assembly: ComVisible(false)]
+[assembly: Guid("3e15ecac-7920-4b0d-97e2-5fd371caa8b9")]
+[assembly: AssemblyFileVersion("1.2.3.0")]
+[assembly: AssemblyVersion("1.2.3.0")]

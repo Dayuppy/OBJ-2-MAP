@@ -34,22 +34,22 @@ namespace OBJ2MAP
             new XVector(0.0, 0.0, -1.0)
         };
 
-        public static void LoadOBJ(IProgressTracker tracker,
-                                   string[] fileLines,
-                                   MainForm.EGRP egrp,
-                                   StreamWriter streamWriter,
-                                   ref List<XVector> _Vertices,
-                                   ref List<XFace> _Faces,
-                                   ref List<XBrush> _Brushes,
-                                   float scale,
-                                   char[] separator1,
+        public static void LoadOBJ(MainForm _MainForm,
+									string[] fileLines,
+								   MainForm.EGRP egrp,
+								   StreamWriter streamWriter,
+								   ref List<XVector> _Vertices,
+								   ref List<XFace> _Faces,
+								   ref List<XBrush> _Brushes,
+								   float scale,
+								   char[] separator1,
 								   char[] separator2)
 		{
-			tracker.UpdateProgress("Loading OBJ File...");
+			_MainForm.UpdateProgress("Loading OBJ File...");
 
 			foreach (string Line in fileLines)
 			{
-				tracker.UpdateProgress();
+				_MainForm.UpdateProgress();
 
 				string TrimmedLine = Line.Trim();
 
@@ -120,7 +120,7 @@ namespace OBJ2MAP
 			}
 		}
 
-		public static void AddBrushesToMAP(IProgressTracker tracker,
+		public static void AddBrushesToMAP(MainForm _MainForm,
 								MainForm.EConvOption econvOption,
 								  List<XVector> _Vertices,
 								  List<XFace> _Faces,
@@ -133,7 +133,7 @@ namespace OBJ2MAP
                                   ref StreamWriter mapFile
                                   )
 		{
-			tracker.UpdateProgress("Adding Brushes to MAP...");
+			_MainForm.UpdateProgress( "Adding Brushes to MAP...");
 			int BrushCount = 0;
             int MaxBrushCount = 0;
             int ProgressValue = 0;
@@ -150,11 +150,11 @@ namespace OBJ2MAP
 
 						while (enumerator.MoveNext())
 						{
-							//tracker.UpdateProgress(string.Format("Adding Brush {0:n0} to MAP...", BrushCount++));
+							//_MainForm.UpdateProgress(string.Format("Adding Brush {0:n0} to MAP...", BrushCount++));
 							foreach (XFace xface in enumerator.Current.Faces)
 							{
                                 ProgressValue = MaxBrushCount > 0 ? (int)Math.Floor((float)BrushCount / (float)MaxBrushCount * 100f) : 0;
-                                tracker.UpdateProgress(string.Format("Adding Brush {0:n0} / {1:n0} to MAP...", BrushCount++, MaxBrushCount),ProgressValue);
+                                _MainForm.UpdateProgress(string.Format("Adding Brush {0:n0} / {1:n0} to MAP...", BrushCount++, MaxBrushCount),ProgressValue);
 								XVector _B = XVector.Multiply(xface.Normal, _Scalar);
 								List<XVector> list3 = new List<XVector>();
 								List<XVector> list4 = new List<XVector>();
@@ -207,11 +207,11 @@ namespace OBJ2MAP
 
 						while (enumerator.MoveNext())
 						{
-							//tracker.UpdateProgress(string.Format("Adding Brush {0:n0} to MAP...", BrushCount++));
+							//_MainForm.UpdateProgress(string.Format("Adding Brush {0:n0} to MAP...", BrushCount++));
 							foreach (XFace xface in enumerator.Current.Faces)
 							{
                                 ProgressValue = MaxBrushCount > 0 ? (int)Math.Floor((float)BrushCount / (float)MaxBrushCount * 100f) : 0;
-                                tracker.UpdateProgress(string.Format("Adding Brush {0:n0} / {1:n0} to MAP...", BrushCount++, MaxBrushCount),ProgressValue);
+                                _MainForm.UpdateProgress(string.Format("Adding Brush {0:n0} / {1:n0} to MAP...", BrushCount++, MaxBrushCount),ProgressValue);
 								XVector _B1 = XVector.Multiply(xface.Normal, _Scalar);
 								List<XVector> list3 = new List<XVector>();
 								foreach (int index in xface.VertIdx)
@@ -264,10 +264,10 @@ namespace OBJ2MAP
 						{
 							XBrush current = enumerator.Current;
 							_MAPText.AppendLine("{");
-                            //tracker.UpdateProgress(string.Format("Adding Brush {0:n0} to MAP...", BrushCount++));
+                            //_MainForm.UpdateProgress(string.Format("Adding Brush {0:n0} to MAP...", BrushCount++));
                             ProgressValue = MaxBrushCount > 0 ? (int)Math.Floor((float)BrushCount / (float)MaxBrushCount * 100f) : 0;
                             
-                            tracker.UpdateProgress(string.Format("Adding Brush {0:n0} / {1:n0} to MAP...", BrushCount++, _Brushes.Count),ProgressValue);
+                            _MainForm.UpdateProgress(string.Format("Adding Brush {0:n0} / {1:n0} to MAP...", BrushCount++, _Brushes.Count),ProgressValue);
 
 							foreach (XFace xface in current.Faces)
 							{

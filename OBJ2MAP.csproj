@@ -1,8 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.26100.0</TargetFramework>
+	<UseWPF>true</UseWPF>
     <AssemblyName>OBJ2MAP</AssemblyName>
     <RootNamespace>OBJ2MAP</RootNamespace>
     <AssemblyVersion>1.3.0.0</AssemblyVersion>
@@ -15,30 +16,21 @@
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <StartupObject>OBJ2MAP.BrushOptimizationDemo</StartupObject>
+    <UseWindowsForms>True</UseWindowsForms>
+    <StartupObject>OBJ2MAP.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Compile Remove="Legacy\**" />
     <Compile Remove="WPF_Implementation\**" />
-    <Compile Remove="Program.cs" />
-    <Compile Remove="MainWindow.xaml.cs" />
-    <Compile Remove="App.xaml.cs" />
-    <Compile Remove="MainForm.cs" />
-    <Compile Remove="MAPCreation_old.cs" />
-    <Compile Remove="SceneSettings.cs" />
-    <Compile Remove="MAPCreation.cs" />
-    <Compile Remove="TestProgram.cs" />
-    <Compile Remove="MainFormCompat.cs" />
     <EmbeddedResource Remove="Legacy\**" />
     <EmbeddedResource Remove="WPF_Implementation\**" />
     <None Remove="Legacy\**" />
     <None Remove="WPF_Implementation\**" />
-    <None Remove="MainWindow.xaml" />
-    <None Remove="App.xaml" />
     <Page Remove="Legacy\**" />
     <Page Remove="WPF_Implementation\**" />
   </ItemGroup>

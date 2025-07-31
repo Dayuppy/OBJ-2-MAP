@@ -36,7 +36,6 @@ namespace OBJ2MAP
             Standard,
             Extrusion,
             Spikes,
-            OptimizedSpikes, // New optimized option that uses quad detection
         }
 
         public enum MapVersion
